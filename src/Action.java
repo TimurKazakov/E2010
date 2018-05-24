@@ -18,7 +18,7 @@ File inputFile;
 
     @Override
     public void run() {
-        Graph myGrap = new Graph(new FileDataToIntHex(this.inputFile));
+        Graph myGrap = new Graph(new FileDataFromStringToInt(this.inputFile));
 //myGrap.ShowGrap();
         myGrap.run();
     }
