@@ -19,13 +19,25 @@ public class MainFrame {
 //menu
         JMenuBar mainMenuBar = new JMenuBar();
         JMenu file = new JMenu("File");
+        JMenu collectData = new JMenu("Collect data");
+
         mainMenuBar.add(file);
+        mainMenuBar.add(collectData);
         mainWindow.setJMenuBar(mainMenuBar);
         JPanel pane1 = new JPanel();
         // submenu
         JMenuItem addFile = file.add(new JMenuItem("Add File"));
         file.addSeparator();
         JMenuItem exit = file.add(new JMenuItem("Exit"));
+        JMenuItem takeData = new JMenuItem("Take Data From Device");
+        collectData.add(takeData);
+
+        takeData.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // код для обработки
+            }
+        });
         exit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
