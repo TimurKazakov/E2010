@@ -2,10 +2,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
+import java.util.concurrent.TimeUnit;
+
 import static java.awt.Component.TOP_ALIGNMENT;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import jssc.*;
@@ -35,60 +34,53 @@ public class MainFrame {
         JMenuItem takeData = new JMenuItem("Take Data From Device");
         collectData.add(takeData);
 
-        takeData.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                sp=new SerialPort("COM9");
-                PrintWriter writer;
-                try{
-                    writer = new PrintWriter("data.txt", "UTF-8");
-                    sp.openPort();
-                    sp.setParams(SerialPort.BAUDRATE_115200,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
-                    PortReader pr = new PortReader(sp,200);
-                    sp.addEventListener(pr,SerialPort.MASK_RXCHAR);
-                    sp.writeString("4000");
-                    while (!pr.isDone()) {
-                        System.out.println(pr.getCnt());
-                        if(pr.isDataRdy()) {
-                            pr.setDataRdy(false);
-                            writer.println(pr.getData());
-                            System.out.println(pr.getData());
-                        }
+        takeData.addActionListener(e -> {
+            sp=new SerialPort("COM9");
+            File file1;
+            FileWriter writer;
+            PrintWriter output;
+            try{
+                file1 = new File("data.txt");
+                writer = new FileWriter(file1, false);
+                output = new PrintWriter(writer);
+                sp.openPort();
+                sp.setParams(SerialPort.BAUDRATE_115200,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
+                PortReader pr = new PortReader(sp,500);
+                sp.addEventListener(pr,SerialPort.MASK_RXCHAR);
+                sp.writeString("10000");
+                TimeUnit.MILLISECONDS.sleep(10);
+                while (!pr.isDone()) {
+                    System.out.println(pr.getCnt());
+                    if(pr.isDataRdy()) {
+                        pr.setDataRdy(false);
+                        output.println(pr.getData());
                     }
-                    System.out.println("done!");
-                    writer.close();
-                    sp.closePort();
-                    //TODO: add pop-up message to show end of the readings
-                    JOptionPane.showMessageDialog(null, "Данные загружены");
-
-
-                }catch (SerialPortException ex){
-                    System.out.println(ex);
-                } catch (FileNotFoundException e1) {
-                    e1.printStackTrace();
-                } catch (UnsupportedEncodingException e1) {
-                    e1.printStackTrace();
+                    TimeUnit.MILLISECONDS.sleep(10);
                 }
+                output.close();
+                writer.close();
+                sp.closePort();
+                JOptionPane.showMessageDialog(null, "Данные загружены");
+            }catch (SerialPortException ex){
+                System.out.println(ex);
+            } catch (FileNotFoundException e1) {
+                e1.printStackTrace();
+            } catch (UnsupportedEncodingException e1) {
+                e1.printStackTrace();
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            } catch (IOException e1) {
+                e1.printStackTrace();
             }
         });
 
-        exit.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                System.exit(0);
-            }
-        });
-        addFile.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFileChooser addFileChooser = new JFileChooser();
-                addFileChooser.setCurrentDirectory(new File("."));
-                addFileChooser.showOpenDialog(pane1);
-                File fileForGraph = addFileChooser.getSelectedFile();
-                Action myAction = new Action(fileForGraph);
-            }
+        exit.addActionListener(e -> System.exit(0));
+        addFile.addActionListener(e -> {
+            JFileChooser addFileChooser = new JFileChooser();
+            addFileChooser.setCurrentDirectory(new File("."));
+            addFileChooser.showOpenDialog(pane1);
+            File fileForGraph = addFileChooser.getSelectedFile();
+            Action myAction = new Action(fileForGraph);
         });
 //        mainWindow.add(panel, BorderLayout.NORTH);
 //        mainWindow.add(pane2, BorderLayout.WEST);
