@@ -1,2 +1,3 @@
-out/production/E2010/MainFrame$2.class
+out/*
 *.class
+.idea/*

@@ -3,7 +3,7 @@ import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 
-class PortReader implements SerialPortEventListener {
+private class PortReader implements SerialPortEventListener {
     private int cnt,max;
     private boolean isDone,dataRdy;
     private String data;
