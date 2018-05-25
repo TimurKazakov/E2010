@@ -59,6 +59,9 @@ public class MainFrame {
                     writer.close();
                     sp.closePort();
                     //TODO: add pop-up message to show end of the readings
+                    JOptionPane.showMessageDialog(null, "Данные загружены");
+
+
                 }catch (SerialPortException ex){
                     System.out.println(ex);
                 } catch (FileNotFoundException e1) {
@@ -68,9 +71,12 @@ public class MainFrame {
                 }
             }
         });
+
         exit.addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent e) {
+
                 System.exit(0);
             }
         });
