@@ -15,7 +15,7 @@ public class MainFrame {
     private static SerialPort sp;
     public static void main(String[] args) {
         JFrame mainWindow = new JFrame("Main");
-        mainWindow.setDefaultCloseOperation(mainWindow.EXIT_ON_CLOSE);
+        mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         mainWindow.setVisible(true);
 //        mainWindow.setLayout(new FlowLayout());
         mainWindow.setSize(800, 600);
@@ -48,7 +48,7 @@ public class MainFrame {
                     sp.addEventListener(pr,SerialPort.MASK_RXCHAR);
                     sp.writeString("4000");
                     while (!pr.isDone()) {
-                        System.out.println(pr.getData());
+                        System.out.println(pr.getCnt());
                         if(pr.isDataRdy()) {
                             pr.setDataRdy(false);
                             writer.println(pr.getData());
