@@ -20,6 +20,7 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static java.awt.Component.TOP_ALIGNMENT;
+
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import jssc.*;
 import oracle.jrockit.jfr.JFR;
@@ -51,10 +52,48 @@ public class MainFrame {
         file.addSeparator();
         JMenuItem exit = file.add(new JMenuItem("Exit"));
         JMenuItem takeData = new JMenuItem("Take Data From Device");
+        JMenuItem ChoosePort = new JMenuItem("Port to Collect");
+        collectData.add(ChoosePort);
+        collectData.addSeparator();
         collectData.add(takeData);
+        final String[] choosingPort = {"COM3"};
+
+        ChoosePort.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFrame portChooserFrame = getFrame();
+                portChooserFrame.setTitle("Выберите порт");
+                JPanel paneX = new JPanel();
+                portChooserFrame.add(paneX);
+                JTextField field = new JTextField();
+                paneX.add(new JLabel("Port: "));
+                paneX.add(field);
+                field.setText(choosingPort[0]);
+                choosingPort[0] = field.getText();
+                JButton ok = new JButton("OK");
+                JButton abort = new JButton("Abort");
+                paneX.add(ok);
+                paneX.add(abort);
+                ok.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        choosingPort[0] = field.getText();
+                        portChooserFrame.dispose();
+//                        System.out.println(choosingPort[0]);
+                    }
+                });
+                abort.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        portChooserFrame.dispose();
+//                        System.out.println(choosingPort[0]);
+                    }
+                });
+            }
+        });
 
         takeData.addActionListener(e -> {
-            sp=new SerialPort("COM3");
+            sp=new SerialPort(choosingPort[0]);
             File file1;
             FileWriter writer;
             PrintWriter output;
@@ -123,6 +162,7 @@ public class MainFrame {
         });
 
         exit.addActionListener(e -> System.exit(0));
+
         addFile.addActionListener(e -> {
             JFileChooser addFileChooser = new JFileChooser();
             addFileChooser.setCurrentDirectory(new File("."));
@@ -151,6 +191,7 @@ public class MainFrame {
 
 
         });
+
 //        mainWindow.add(panel, BorderLayout.NORTH);
 //        mainWindow.add(pane2, BorderLayout.WEST);
 //
@@ -185,7 +226,9 @@ static JFrame getFrame(){
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Dimension dimension = toolkit.getScreenSize();
-        frame.setBounds(dimension.width/2-125,dimension.height/2-38, 250,75);
+        frame.setBounds(dimension.width/2-125,dimension.height/2-50, 250,100);
+
+
 
         return frame;
 }
