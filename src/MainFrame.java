@@ -1,13 +1,28 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.dnd.DragGestureEvent;
+import java.awt.dnd.InvalidDnDOperationException;
+import java.awt.dnd.peer.DragSourceContextPeer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.font.TextAttribute;
+import java.awt.im.InputMethodHighlight;
+import java.awt.image.ColorModel;
+import java.awt.image.ImageObserver;
+import java.awt.image.ImageProducer;
+import java.awt.peer.*;
 import java.io.*;
+import java.net.URL;
+import java.nio.file.Files;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static java.awt.Component.TOP_ALIGNMENT;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import jssc.*;
+import oracle.jrockit.jfr.JFR;
 
 public class MainFrame {
 
@@ -17,7 +32,11 @@ public class MainFrame {
         mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         mainWindow.setVisible(true);
 //        mainWindow.setLayout(new FlowLayout());
-        mainWindow.setSize(800, 600);
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        Dimension dimension = toolkit.getScreenSize();
+        mainWindow.setBounds(dimension.width/2-400,dimension.height/2-300, 800,600);
+
+
 //menu
         JMenuBar mainMenuBar = new JMenuBar();
         JMenu file = new JMenu("File");
@@ -35,7 +54,7 @@ public class MainFrame {
         collectData.add(takeData);
 
         takeData.addActionListener(e -> {
-            sp=new SerialPort("COM9");
+            sp=new SerialPort("COM3");
             File file1;
             FileWriter writer;
             PrintWriter output;
@@ -45,7 +64,7 @@ public class MainFrame {
                 output = new PrintWriter(writer);
                 sp.openPort();
                 sp.setParams(SerialPort.BAUDRATE_115200,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
-                PortReader pr = new PortReader(sp,500);
+                PortReader pr = new PortReader(sp,100);
                 sp.addEventListener(pr,SerialPort.MASK_RXCHAR);
                 sp.writeString("10000");
                 TimeUnit.MILLISECONDS.sleep(10);
@@ -60,16 +79,45 @@ public class MainFrame {
                 output.close();
                 writer.close();
                 sp.closePort();
+
                 JOptionPane.showMessageDialog(null, "Данные загружены");
+                JFileChooser savedata = new JFileChooser("Save as");
+                savedata.setCurrentDirectory(new File("."));
+//                savedata.showSaveDialog(pane1);
+                if (savedata.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+                     {
+                        FileInputStream saveToOut = new FileInputStream(file1);
+                        FileOutputStream fileStream = new FileOutputStream(savedata.getSelectedFile());
+                         while (saveToOut.available() > 0)
+                         {
+                             int data = saveToOut.read();
+                             fileStream.write(data);
+                         }
+
+                         saveToOut.close();
+                         fileStream.close();
+
+                    }
+
+                }
+
+
+
             }catch (SerialPortException ex){
+                JOptionPane.showMessageDialog(null, ex);
+
                 System.out.println(ex);
             } catch (FileNotFoundException e1) {
+                JOptionPane.showMessageDialog(null, e1.getMessage());
                 e1.printStackTrace();
             } catch (UnsupportedEncodingException e1) {
+                JOptionPane.showMessageDialog(null, e1.getMessage());
                 e1.printStackTrace();
             } catch (InterruptedException e1) {
+                JOptionPane.showMessageDialog(null, e1.getMessage());
                 e1.printStackTrace();
             } catch (IOException e1) {
+                JOptionPane.showMessageDialog(null, e1.getMessage());
                 e1.printStackTrace();
             }
         });
@@ -80,7 +128,28 @@ public class MainFrame {
             addFileChooser.setCurrentDirectory(new File("."));
             addFileChooser.showOpenDialog(pane1);
             File fileForGraph = addFileChooser.getSelectedFile();
-            Action myAction = new Action(fileForGraph);
+            JFrame popupFrame = getFrame();
+            JPanel panel = new JPanel();
+            popupFrame.add(panel);
+            JButton hex = new JButton("Hex");
+            JButton Integ = new JButton("Int");
+
+            panel.add(hex);
+            panel.add(Integ);
+            hex.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Action myAction = new Action(fileForGraph, "hex");
+                }
+            });
+            Integ.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Action myAction = new Action(fileForGraph, "integ");
+                }
+            });
+
+
         });
 //        mainWindow.add(panel, BorderLayout.NORTH);
 //        mainWindow.add(pane2, BorderLayout.WEST);
@@ -107,4 +176,18 @@ public class MainFrame {
 //        });
 //    }
     }
+
+static JFrame getFrame(){
+
+        JFrame frame= new JFrame("Выберите формат");
+        frame.setVisible(true);
+        frame.setBounds(0, 0, 500,500);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        Dimension dimension = toolkit.getScreenSize();
+        frame.setBounds(dimension.width/2-125,dimension.height/2-38, 250,75);
+
+        return frame;
+}
+
 }

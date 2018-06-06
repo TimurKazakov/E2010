@@ -1,6 +1,7 @@
 import org.knowm.xchart.*;
 import org.knowm.xchart.style.markers.SeriesMarkers;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,10 +24,16 @@ public class Graph implements Runnable {
         for (int i = 0; i <d3.length ; i++) {
             d3[i]=inputNumber.get(i);
         }
-        XYSeries series = chart.addSeries("Data" , null, d3);
-        series.setMarker(SeriesMarkers.NONE);
-        charts.add(chart);
+try {
 
+
+    XYSeries series = chart.addSeries("Data", null, d3);
+    series.setMarker(SeriesMarkers.NONE);
+    charts.add(chart);
+}
+catch (Exception e){
+    JOptionPane.showMessageDialog(null, "Неверный Формат файла");
+}
         new SwingWrapper<XYChart>(charts).displayChartMatrix();
     }
 
@@ -54,6 +61,9 @@ public class Graph implements Runnable {
         charts.add(chart);
 
         new SwingWrapper<XYChart>(charts).displayChartMatrix();
+
+
+
     }
 
     @Override
